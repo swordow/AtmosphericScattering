@@ -1,4 +1,7 @@
-﻿//  Copyright(c) 2016, Michal Skalsky
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+//  Copyright(c) 2016, Michal Skalsky
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -39,7 +42,8 @@ Shader "Skybox/AtmosphericScattering"
 			#pragma shader_feature ATMOSPHERE_REFERENCE
 			#pragma shader_feature RENDER_SUN
 			#pragma shader_feature HIGH_QUALITY
-			
+			#pragma enable_d3d11_debug_symbols
+
 			#pragma vertex vert
 			#pragma fragment frag
 
@@ -64,7 +68,7 @@ Shader "Skybox/AtmosphericScattering"
 			v2f vert (appdata v)
 			{
 				v2f o;
-				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
 				o.vertex = v.vertex;
 				return o;
 			}
@@ -73,7 +77,7 @@ Shader "Skybox/AtmosphericScattering"
 			{
 #ifdef ATMOSPHERE_REFERENCE
 				float3 rayStart = _CameraPos;
-				float3 rayDir = normalize(mul((float3x3)_Object2World, i.vertex));
+				float3 rayDir = normalize(mul((float3x3)unity_ObjectToWorld, i.vertex));
 
 				float3 lightDir = -_WorldSpaceLightPos0.xyz;
 
@@ -92,7 +96,7 @@ Shader "Skybox/AtmosphericScattering"
 				return float4(inscattering.xyz, 1);
 #else
 				float3 rayStart = _CameraPos;
-				float3 rayDir = normalize(mul((float3x3)_Object2World, i.vertex));
+				float3 rayDir = normalize(mul((float3x3)unity_ObjectToWorld, i.vertex));
 
 				float3 lightDir = -_WorldSpaceLightPos0.xyz;
 

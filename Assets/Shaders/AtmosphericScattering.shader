@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 //  Copyright(c) 2016, Michal Skalsky
 //  All rights reserved.
 //
@@ -40,6 +42,9 @@ Shader "Hidden/AtmosphericScattering"
 		LOD 100
 
 		CGINCLUDE
+
+		#pragma enable_d3d11_debug_symbols
+
 		#include "UnityCG.cginc"
 		#include "UnityDeferredLibrary.cginc"
 
@@ -94,7 +99,7 @@ Shader "Hidden/AtmosphericScattering"
             v2p vertQuad(input v)
             {
                 v2p o;
-                o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.texcoord.xy;
                 return o;
             }
@@ -124,8 +129,9 @@ Shader "Hidden/AtmosphericScattering"
 
 			CGPROGRAM
 
+#pragma enable_d3d11_debug_symbols
 #pragma vertex vertQuad
-#pragma fragment fragDir
+#pragma fragment fragAmbient
 #pragma target 4.0
 
 			struct v2p
@@ -143,12 +149,12 @@ Shader "Hidden/AtmosphericScattering"
 			v2p vertQuad(input v)
 			{
 				v2p o;
-				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = v.texcoord.xy;
 				return o;
 			}
 
-			float4 fragDir(v2f i) : SV_Target
+			float4 fragAmbient(v2f i) : SV_Target
 			{
 				float cosAngle = i.uv.x * 1.1 - 0.1;// *2.0 - 1.0;
                 float sinAngle = sqrt(saturate(1 - cosAngle * cosAngle));
@@ -169,7 +175,7 @@ Shader "Hidden/AtmosphericScattering"
 			Blend Off
 
 			CGPROGRAM
-
+#pragma enable_d3d11_debug_symbols
 #pragma vertex vertQuad
 #pragma fragment fragDir
 #pragma target 4.0
@@ -189,7 +195,7 @@ Shader "Hidden/AtmosphericScattering"
 			v2p vertQuad(input v)
 			{
 				v2p o;
-				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = v.texcoord.xy;
 				return o;
 			}
@@ -214,9 +220,9 @@ Shader "Hidden/AtmosphericScattering"
 			Blend One Zero
 
 			CGPROGRAM
-
-#pragma vertex vertDir
-#pragma fragment fragDir
+#pragma enable_d3d11_debug_symbols
+#pragma vertex vertFog
+#pragma fragment fragFog
 #pragma target 4.0
 
 #define UNITY_HDR_ON
@@ -240,18 +246,18 @@ Shader "Hidden/AtmosphericScattering"
 				float3 wpos : TEXCOORD1;
 			};
 
-			PSInput vertDir(VSInput i)
+			PSInput vertFog(VSInput i)
 			{
 				PSInput o;
 
-				o.pos = mul(UNITY_MATRIX_MVP, i.vertex);
+				o.pos = UnityObjectToClipPos(i.vertex);
 				o.uv = i.uv;
 				o.wpos = _FrustumCorners[i.vertexId];
 
 				return o;
 			}
 
-			float4 fragDir(v2f i) : COLOR0
+			float4 fragFog(v2f i) : COLOR0
 			{
 				float2 uv = i.uv.xy;
 				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);

@@ -748,6 +748,8 @@ public class AtmosphericScattering : MonoBehaviour
         UpdateLightScatteringParameters();
         UpdateLightShaftsParameters();
 
+        PrecomputeParticleDensity();
+        CalculateLightLUTs();
         UpdateInscatteringLUT();
     }
 
